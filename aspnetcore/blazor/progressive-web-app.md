@@ -1,19 +1,21 @@
 ---
-title: Build Progressive Web Applications with ASP.NET Core Blazor WebAssembly
+title: ASP.NET Core Blazor Progressive Web Application (PWA)
 author: guardrex
-description: Learn how to build a Blazor-based Progressive Web Application (PWA) that use modern browser features to behave like a desktop app.
+description: Learn how to build a Blazor Progressive Web Application (PWA) that use modern browser features to behave like a desktop app.
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 01/11/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
+ms.date: 11/09/2021
+no-loc: [".NET MAUI", "Mac Catalyst", "Blazor Hybrid", Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/progressive-web-app
 ---
-# Build Progressive Web Applications with ASP.NET Core Blazor WebAssembly
+# ASP.NET Core Blazor Progressive Web Application (PWA)
 
-::: moniker range=">= aspnetcore-6.0"
+A Blazor Progressive Web Application (PWA) is a single-page application (SPA) that uses modern browser APIs and capabilities to behave like a desktop app.
 
-A Progressive Web Application (PWA) is usually a Single Page Application (SPA) that uses modern browser APIs and capabilities to behave like a desktop app. Blazor WebAssembly is a standards-based client-side web app platform, so it can use any browser API, including PWA APIs required for the following capabilities:
+:::moniker range=">= aspnetcore-6.0"
+
+Blazor WebAssembly is a standards-based client-side web app platform, so it can use any browser API, including PWA APIs required for the following capabilities:
 
 * Working offline and loading instantly, independent of network speed.
 * Running in its own app window, not just a browser window.
@@ -21,7 +23,7 @@ A Progressive Web Application (PWA) is usually a Single Page Application (SPA) t
 * Receiving push notifications from a backend server, even while the user isn't using the app.
 * Automatically updating in the background.
 
-The word *progressive* is used to describe such apps because:
+The word *progressive* is used to describe these apps because:
 
 * A user might first discover and use the app within their web browser like any other SPA.
 * Later, the user progresses to installing it in their OS and enabling push notifications.
@@ -95,7 +97,7 @@ To obtain static assets, use **one** of the following approaches:
 
   [Blazor WebAssembly project template `wwwroot` folder (dotnet/aspnetcore GitHub repository `main` branch)](https://github.com/dotnet/aspnetcore/tree/main/src/ProjectTemplates/Web.ProjectTemplates/content/ComponentsWebAssembly-CSharp/Client/wwwroot)
 
-  [!INCLUDE[](~/blazor/includes/aspnetcore-repo-ref-source-links.md)]
+  [!INCLUDE[](~/includes/aspnetcore-repo-ref-source-links.md)]
 
 From the source `wwwroot` folder either in the app that you created or from the reference assets in the `dotnet/aspnetcore` GitHub repository, copy the following files into the app's `wwwroot` folder:
 
@@ -364,13 +366,13 @@ The [`CarChecker`](https://github.com/SteveSandersonMS/CarChecker) sample app de
 ## Additional resources
 
 * [Troubleshoot integrity PowerShell script](xref:blazor/host-and-deploy/webassembly#troubleshoot-integrity-powershell-script)
-* [SignalR cross-origin negotiation for authentication](xref:blazor/fundamentals/signalr#signalr-cross-origin-negotiation-for-authentication)
+* [SignalR cross-origin negotiation for authentication](xref:blazor/fundamentals/signalr#signalr-cross-origin-negotiation-for-authentication-blazor-webassembly)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
-A Progressive Web Application (PWA) is usually a Single Page Application (SPA) that uses modern browser APIs and capabilities to behave like a desktop app. Blazor WebAssembly is a standards-based client-side web app platform, so it can use any browser API, including PWA APIs required for the following capabilities:
+Blazor WebAssembly is a standards-based client-side web app platform, so it can use any browser API, including PWA APIs required for the following capabilities:
 
 * Working offline and loading instantly, independent of network speed.
 * Running in its own app window, not just a browser window.
@@ -451,7 +453,7 @@ To obtain static assets, use **one** of the following approaches:
 
   [Blazor WebAssembly project template `wwwroot` folder (dotnet/aspnetcore GitHub repository `main` branch)](https://github.com/dotnet/aspnetcore/tree/main/src/ProjectTemplates/Web.ProjectTemplates/content/ComponentsWebAssembly-CSharp/Client/wwwroot)
 
-  [!INCLUDE[](~/blazor/includes/aspnetcore-repo-ref-source-links.md)]
+  [!INCLUDE[](~/includes/aspnetcore-repo-ref-source-links.md)]
 
 From the source `wwwroot` folder either in the app that you created or from the reference assets in the `dotnet/aspnetcore` GitHub repository, copy the following files into the app's `wwwroot` folder:
 
@@ -720,13 +722,13 @@ The [`CarChecker`](https://github.com/SteveSandersonMS/CarChecker) sample app de
 ## Additional resources
 
 * [Troubleshoot integrity PowerShell script](xref:blazor/host-and-deploy/webassembly#troubleshoot-integrity-powershell-script)
-* [SignalR cross-origin negotiation for authentication](xref:blazor/fundamentals/signalr#signalr-cross-origin-negotiation-for-authentication)
+* [SignalR cross-origin negotiation for authentication](xref:blazor/fundamentals/signalr#signalr-cross-origin-negotiation-for-authentication-blazor-webassembly)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
-A Progressive Web Application (PWA) is usually a Single Page Application (SPA) that uses modern browser APIs and capabilities to behave like a desktop app. Blazor WebAssembly is a standards-based client-side web app platform, so it can use any browser API, including PWA APIs required for the following capabilities:
+Blazor WebAssembly is a standards-based client-side web app platform, so it can use any browser API, including PWA APIs required for the following capabilities:
 
 * Working offline and loading instantly, independent of network speed.
 * Running in its own app window, not just a browser window.
@@ -807,7 +809,7 @@ To obtain static assets, use **one** of the following approaches:
   >
   > [Blazor WebAssembly project template `wwwroot` folder (dotnet/aspnetcore GitHub repository `main` branch)](https://github.com/dotnet/aspnetcore/tree/main/src/ProjectTemplates/Web.ProjectTemplates/content/ComponentsWebAssembly-CSharp/Client/wwwroot)
   >
-  > [!INCLUDE[](~/blazor/includes/aspnetcore-repo-ref-source-links.md)]
+  > [!INCLUDE[](~/includes/aspnetcore-repo-ref-source-links.md)]
 
 From the source `wwwroot` folder either in the app that you created or from the reference assets in the `dotnet/aspnetcore` GitHub repository, copy the following files into the app's `wwwroot` folder:
 
@@ -1076,6 +1078,6 @@ The [`CarChecker`](https://github.com/SteveSandersonMS/CarChecker) sample app de
 ## Additional resources
 
 * [Troubleshoot integrity PowerShell script](xref:blazor/host-and-deploy/webassembly#troubleshoot-integrity-powershell-script)
-* [SignalR cross-origin negotiation for authentication](xref:blazor/fundamentals/signalr#signalr-cross-origin-negotiation-for-authentication)
+* [SignalR cross-origin negotiation for authentication](xref:blazor/fundamentals/signalr#signalr-cross-origin-negotiation-for-authentication-blazor-webassembly)
 
-::: moniker-end
+:::moniker-end

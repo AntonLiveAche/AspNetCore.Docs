@@ -1,19 +1,21 @@
 ---
 title: ASP.NET Core Razor components
 author: guardrex
-description: Learn how to create and use Razor components in Blazor apps, including guidance on Razor syntax in components, component naming, namespaces, and component parameters.
+description: Learn how to create and use Razor components in Blazor apps, including guidance on Razor syntax, component naming, namespaces, and component parameters.
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 04/19/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
+ms.date: 11/09/2021
+no-loc: [".NET MAUI", "Mac Catalyst", "Blazor Hybrid", Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/components/index
 ---
 # ASP.NET Core Razor components
 
-::: moniker range=">= aspnetcore-6.0"
+This article explains how to create and use Razor components in Blazor apps, including guidance on Razor syntax, component naming, namespaces, and component parameters.
 
-Blazor apps are built using *Razor components*. A component is a self-contained portion of user interface (UI) with processing logic to enable dynamic behavior. Components can be nested, reused, shared among projects, and [used in MVC and Razor Pages apps](xref:blazor/components/prerendering-and-integration).
+:::moniker range=">= aspnetcore-6.0"
+
+Blazor apps are built using *Razor components*, informally known as *Blazor components*. A component is a self-contained portion of user interface (UI) with processing logic to enable dynamic behavior. Components can be nested, reused, shared among projects, and [used in MVC and Razor Pages apps](xref:blazor/components/prerendering-and-integration).
 
 ## Component classes
 
@@ -54,19 +56,7 @@ The following `HelloWorld` component uses a route template of `/hello-world`. Th
 
 The preceding component loads in the browser at `/hello-world` regardless of whether or not you add the component to the app's UI navigation. Optionally, components can be added to the `NavMenu` component so that a link to the component appears in the app's UI-based navigation.
 
-For the preceding `HelloWorld` component, add the following `NavLink` component to the `NavMenu` component. Add the `NavLink` component in a new list item (`<li>...</li>`) between the unordered list tags (`<ul>...</ul>`).
-
-`Shared/NavMenu.razor`:
-
-```razor
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="hello-world">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> Hello World!
-    </NavLink>
-</li>
-```
-
-For more information, including descriptions of the `NavLink` and `NavMenu` components, see <xref:blazor/fundamentals/routing>.
+For the preceding `HelloWorld` component, you can add a `NavLink` component to the `NavMenu` component in the `Shared` folder. For more information, including descriptions of the `NavLink` and `NavMenu` components, see <xref:blazor/fundamentals/routing>.
 
 ### Markup
 
@@ -93,6 +83,12 @@ Component members are used in rendering logic using C# expressions that start wi
 The Blazor framework processes a component internally as a [*render tree*](https://developer.mozilla.org/docs/Web/Performance/How_browsers_work#render), which is the combination of a component's [Document Object Model (DOM)](https://developer.mozilla.org/docs/Web/API/Document_Object_Model/Introduction) and [Cascading Style Sheet Object Model (CSSOM)](https://developer.mozilla.org/docs/Web/API/CSS_Object_Model). After the component is initially rendered, the component's render tree is regenerated in response to events. Blazor compares the new render tree against the previous render tree and applies any modifications to the browser's DOM for display. For more information, see <xref:blazor/components/rendering>.
 
 Components are ordinary [C# classes](/dotnet/csharp/programming-guide/classes-and-structs/classes) and can be placed anywhere within a project. Components that produce webpages usually reside in the `Pages` folder. Non-page components are frequently placed in the `Shared` folder or a custom folder added to the project.
+
+Razor syntax for C# control structures, directives, and directive attributes are lowercase (examples: [`@if`](xref:mvc/views/razor#conditionals-if-else-if-else-and-switch), [`@code`](xref:mvc/views/razor#code), [`@bind`](xref:mvc/views/razor#bind)). Property names are uppercase (example: `@Body` for <xref:Microsoft.AspNetCore.Components.LayoutComponentBase.Body?displayProperty=nameWithType>).
+
+### Asynchronous methods (`async`) don't support returning `void`
+
+The Blazor framework doesn't track `void`-returning asynchronous methods (`async`). As a result, exceptions aren't caught if `void` is returned. Always return a <xref:System.Threading.Tasks.Task> from asynchronous methods.
 
 ### Nested components
 
@@ -170,32 +166,11 @@ The following `Counter` component splits HTML and Razor markup from  C# code usi
 
 `Pages/CounterPartialClass.razor`:
 
-```razor
-@page "/counter-partial-class"
-
-<h1>Counter</h1>
-
-<p>Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-```
+[!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Pages/index/CounterPartialClass.razor)]
 
 `Pages/CounterPartialClass.razor.cs`:
 
-```csharp
-namespace BlazorSample.Pages
-{
-    public partial class CounterPartialClass
-    {
-        private int currentCount = 0;
-
-        void IncrementCount()
-        {
-            currentCount++;
-        }
-    }
-}
-```
+[!code-csharp[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Pages/index/CounterPartialClass.razor.cs)]
 
 [`@using`][2] directives in the `_Imports.razor` file are only applied to Razor files (`.razor`), not C# files (`.cs`). Add namespaces to a partial class file as needed.
 
@@ -283,6 +258,20 @@ Assign a C# field, property, or result of a method to a component parameter as a
 * The current local date in long format with <xref:System.DateTime.ToLongDateString%2A>, which uses an [implicit C# expression](xref:mvc/views/razor#implicit-razor-expressions).
 * The `panelData` object's `Title` property.
 
+The `@` prefix is required for string parameters. Otherwise, the framework assumes that a string literal is set.
+
+Outside of string parameters, we recommend use the use of the `@` prefix for nonliterals, even when they aren't strictly required.
+
+We don't recommend the use of the `@` prefix for literals (for example, boolean values), keywords (for example, `this`), or `null`, but you can choose to use them if you wish. For example, `IsFixed="@true"` is uncommon but supported.
+
+Quotes around parameter attribute values are optional in most cases per the HTML5 specification. For example, `Value=this` is supported, instead of `Value="this"`. However, we recommend using quotes because it's easier to remember and widely adopted across web-based technologies.
+
+Throughout the documentation, code examples:
+
+* Always use quotes. Example: `Value="this"`.
+* Nonliterals always use the `@` prefix, even when it's optional. Examples: `Title="@title"`, where `title` is a string-typed variable. `Count="@ct"`, where `ct` is a number-typed variable.
+* Literals, outside of Razor expressions, always avoid `@`. Example: `IsFixed="true"`.
+
 `Pages/ParameterParent2.razor`:
 
 [!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Pages/index/ParameterParent2.razor)]
@@ -318,7 +307,7 @@ To obtain a value for the `Title` parameter in the preceding example asynchronou
 <ParameterChild Title="@title" />
 
 @code {
-    private string title;
+    private string? title;
     
     protected override async Task OnInitializedAsync()
     {
@@ -375,20 +364,60 @@ public DateTime StartData { get; set; } = DateTime.Now;
 
 After the initial assignment of <xref:System.DateTime.Now?displayProperty=nameWithType>, do **not** assign a value to `StartData` in developer code. For more information, see the [Overwritten parameters](#overwritten-parameters) section of this article.
 
-Apply the `[EditorRequired]` attribute to specify a required component parameter. If a parameter value isn't provided, editors or build tools may display warnings to the user. This attribute is only valid on properties also marked with the `[Parameter]` attribute. The `[EditorRequired]` attribute is enforced at design-time and when the app is built. The attribute isn't enforced at runtime, and it doesn't guarantee a non-`null` parameter value.
+Apply the [`[EditorRequired]` attribute](xref:Microsoft.AspNetCore.Components.EditorRequiredAttribute) to specify a required component parameter. If a parameter value isn't provided, editors or build tools may display warnings to the user. This attribute is only valid on properties also marked with the [`[Parameter]` attribute](xref:Microsoft.AspNetCore.Components.ParameterAttribute). The <xref:Microsoft.AspNetCore.Components.EditorRequiredAttribute> is enforced at design-time and when the app is built. The attribute isn't enforced at runtime, and it doesn't guarantee a non-`null` parameter value.
 
 ```csharp
 [Parameter]
 [EditorRequired]
-public string Title { get; set; }
+public string? Title { get; set; }
 ```
 
 Single-line attribute lists are also supported:
 
 ```csharp
 [Parameter, EditorRequired]
-public string Title { get; set; }
+public string? Title { get; set; }
 ```
+
+[`Tuples`](/dotnet/csharp/language-reference/builtin-types/value-tuples) ([API documentation](xref:System.Tuple)) are supported for component parameters and [`RenderFragment`](#child-content) types. The following component parameter example passes three values in a `Tuple`:
+
+`Shared/RenderTupleChild.razor`:
+
+```csharp
+<div class="card w-50" style="margin-bottom:15px">
+    <div class="card-header font-weight-bold"><code>Tuple</code> Card</div>
+    <div class="card-body">
+        <ul>
+            <li>Integer: @Data?.Item1</li>
+            <li>String: @Data?.Item2</li>
+            <li>Boolean: @Data?.Item3</li>
+        </ul>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Tuple<int, string, bool>? Data { get; set; }
+}
+```
+
+`Pages/RenderTupleParent.razor`:
+
+```csharp
+@page "/render-tuple-parent"
+
+<h1>Render <code>Tuple</code> Parent</h1>
+
+<RenderTupleChild Data="@data" />
+
+@code {
+    private Tuple<int, string, bool> data = new(999, "I aim to misbehave.", true);
+}
+```
+    
+Only ***unnamed tuples*** are supported for C# 7.0 or later in Razor components. [Named tuples](/dotnet/csharp/language-reference/builtin-types/value-tuples#tuple-field-names) support in Razor components is planned for a future ASP.NET Core release. For more information, see [Blazor Transpiler issue with named Tuples (dotnet/aspnetcore #28982)](https://github.com/dotnet/aspnetcore/issues/28982).
+
+Quote &copy;2005 [Universal Pictures](https://www.uphe.com): [Serenity](https://www.uphe.com/movies/serenity-2005) ([Nathan Fillion](https://www.imdb.com/name/nm0277213/))
 
 ## Route parameters
 
@@ -458,7 +487,7 @@ The following revised `Expander` component:
 
 [!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Shared/index/Expander.razor)]
 
-For additional information, see [Blazor Two Way Binding Error (dotnet/aspnetcore #24599)](https://github.com/dotnet/aspnetcore/issues/24599).
+For two-way parent-child binding examples, see <xref:blazor/components/data-binding#binding-with-component-parameters>. For additional information, see [Blazor Two Way Binding Error (dotnet/aspnetcore #24599)](https://github.com/dotnet/aspnetcore/issues/24599).
 
 ## Child content
 
@@ -472,6 +501,8 @@ In the following example, the `RenderFragmentChild` component has a `ChildConten
 
 > [!IMPORTANT]
 > The property receiving the <xref:Microsoft.AspNetCore.Components.RenderFragment> content must be named `ChildContent` by convention.
+>
+> [Event callbacks](xref:blazor/components/event-handling#eventcallback) aren't supported for <xref:Microsoft.AspNetCore.Components.RenderFragment>.
 
 The following `RenderFragmentParent` component provides content for rendering the `RenderFragmentChild` by placing the content inside the child component's opening and closing tags.
 
@@ -507,10 +538,22 @@ Alternatively, use a [`foreach`](/dotnet/csharp/language-reference/keywords/fore
 }
 ```
 
+> [!NOTE]
+> Assignment to a <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate is only supported in Razor component files (`.razor`):
+> 
+> ```razor
+> private RenderFragment RenderWelcomeInfo = __builder =>
+> {
+>     <p>Welcome to your new app!</p>
+> };
+> ```
+>
+> For more information, see <xref:blazor/performance#define-reusable-renderfragments-in-code>.
+
 For information on how a <xref:Microsoft.AspNetCore.Components.RenderFragment> can be used as a template for component UI, see the following articles:
 
 * <xref:blazor/components/templated-components>
-* <xref:blazor/webassembly-performance-best-practices#define-reusable-renderfragments-in-code>
+* <xref:blazor/performance#define-reusable-renderfragments-in-code>
 
 ## Attribute splatting and arbitrary parameters
 
@@ -546,7 +589,7 @@ To accept arbitrary attributes, define a [component parameter](#component-parame
 ```razor
 @code {
     [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object> InputAttributes { get; set; }
+    public Dictionary<string, object>? InputAttributes { get; set; }
 }
 ```
 
@@ -617,15 +660,6 @@ The following delegate approach uses the preceding `ReferenceChild` component.
 
 [!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Pages/index/ReferenceParent2.razor)]
 
-Use a collection to reference components in a loop. In the following example:
-
-* Components are added to a <xref:System.Collections.Generic.List%601>.
-* A button is created for each component that triggers the corresponding component's `ChildMethod` by its component index in the <xref:System.Collections.Generic.List%601>.
-
-`Pages/ReferenceParent3.razor` using the preceding `ReferenceChild` component:
-
-[!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Pages/index/ReferenceParent3.razor)]
-
 While capturing component references use a similar syntax to [capturing element references](xref:blazor/js-interop/call-javascript-from-dotnet#capture-references-to-elements), capturing component references isn't a JavaScript interop feature. Component references aren't passed to JavaScript code. Component references are only used in .NET code.
 
 > [!IMPORTANT]
@@ -655,33 +689,39 @@ Generally, don't call the following methods in components. The following methods
 
 In the event a component must be updated based on an external event, such as a timer or other notification, use the `InvokeAsync` method, which dispatches code execution to Blazor's synchronization context. For example, consider the following *notifier service* that can notify any listening component about updated state. The `Update` method can be called from anywhere in the app.
 
-`Notifier.cs`:
+`TimerService.cs`:
 
-[!code-csharp[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Notifier.cs)]
+[!code-csharp[](~/blazor/samples/6.0/BlazorSample_WebAssembly/TimerService.cs)]
 
-Register the `Notifier` service:
+`NotifierService.cs`:
 
-* In a Blazor WebAssembly app, register the service as singleton in `Program.Main`:
+[!code-csharp[](~/blazor/samples/6.0/BlazorSample_WebAssembly/NotifierService.cs)]
 
-  ```csharp
-  builder.Services.AddSingleton<Notifier>();
-  ```
+Register the services:
 
-* In a Blazor Server app, register the service as scoped in `Startup.ConfigureServices`:
+* In a Blazor WebAssembly app, register the services as singletons in `Program.cs`:
 
   ```csharp
-  services.AddScoped<Notifier>();
+  builder.Services.AddSingleton<NotifierService>();
+  builder.Services.AddSingleton<TimerService>();
   ```
 
-Use the `Notifier` service to update a component.
+* In a Blazor Server app, register the services as scoped in `Program.cs`:
 
-`Pages/NotifierExample.razor`:
+  ```csharp
+  builder.Services.AddScoped<NotifierService>();
+  builder.Services.AddScoped<TimerService>();
+  ```
 
-[!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Pages/index/NotifierExample.razor)]
+Use the `NotifierService` to update a component.
+
+`Pages/ReceiveNotifications.razor`:
+
+[!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Pages/index/ReceiveNotifications.razor)]
 
 In the preceding example:
 
-* `Notifier` invokes the component's `OnNotify` method outside of Blazor's synchronization context. `InvokeAsync` is used to switch to the correct context and queue a render. For more information, see <xref:blazor/components/rendering>.
+* `NotifierService` invokes the component's `OnNotify` method outside of Blazor's synchronization context. `InvokeAsync` is used to switch to the correct context and queue a render. For more information, see <xref:blazor/components/rendering>.
 * The component implements <xref:System.IDisposable>. The `OnNotify` delegate is unsubscribed in the `Dispose` method, which is called by the framework when the component is disposed. For more information, see <xref:blazor/components/lifecycle#component-disposal-with-idisposable-and-iasyncdisposable>.
 
 ## Use `@key` to control the preservation of elements and components
@@ -977,7 +1017,7 @@ The following example demonstrates:
     private string message = "Lorem ipsum dolor sit amet, consectetur adipiscing " +
         "elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
-    private string value;
+    private string? value;
 }
 ```
 
@@ -1010,16 +1050,427 @@ C# syntax with [`where`](/dotnet/csharp/language-reference/keywords/where-generi
 @typeparam TEntity where TEntity : IEntity
 ```
 
-For more information, see the following articles:
+In the following example, the `ListGenericTypeItems1` component is generically typed as `TExample`.
 
-* <xref:mvc/views/razor#typeparam>
-* <xref:blazor/components/templated-components>
+`Shared/ListGenericTypeItems1.razor`:
 
-::: moniker-end
+[!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Shared/index/ListGenericTypeItems1.razor)]
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+The following `GenericTypeExample1` component renders two `ListGenericTypeItems1` components:
 
-Blazor apps are built using *Razor components*. A component is a self-contained portion of user interface (UI) with processing logic to enable dynamic behavior. Components can be nested, reused, shared among projects, and [used in MVC and Razor Pages apps](xref:blazor/components/prerendering-and-integration).
+* String or integer data is assigned to the `ExampleList` parameter of each component.
+* Type `string` or `int` that matches the type of the assigned data is set for the type parameter (`TExample`) of each component.
+
+`Pages/GenericTypeExample1.razor`:
+
+[!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Pages/index/GenericTypeExample1.razor)]
+
+For more information, see <xref:mvc/views/razor#typeparam>. For an example of generic typing with templated components, see <xref:blazor/components/templated-components>.
+
+## Cascaded generic type support
+
+An ancestor component can cascade a type parameter by name to descendants using the [`[CascadingTypeParameter]` attribute](xref:Microsoft.AspNetCore.Components.CascadingTypeParameterAttribute). This attribute allows a generic type inference to use the specified type parameter automatically with descendants that have a type parameter with the same name.
+
+By adding `@attribute [CascadingTypeParameter(...)]` to a component, the specified generic type argument is automatically used by descendants that:
+
+* Are nested as child content for the component in the same `.razor` document.
+* Also declare a [`@typeparam`](xref:mvc/views/razor#typeparam) with the exact same name.
+* Don't have another value explicitly supplied or implicitly inferred for the type parameter. If another value is supplied or inferred, it takes precedence over the cascaded generic type.
+
+When receiving a cascaded type parameter, components obtain the parameter value from the closest ancestor that has a <xref:Microsoft.AspNetCore.Components.CascadingTypeParameterAttribute> with a matching name. Cascaded generic type parameters are overridden within a particular subtree.
+
+Matching is only performed by name. Therefore, we recommend avoiding a cascaded generic type parameter with a generic name, for example `T` or `TItem`. If a developer opts into cascading a type parameter, they're implicitly promising that its name is unique enough not to clash with other cascaded type parameters from unrelated components.
+
+Generic types can be cascaded to child components in either of the following approaches with ancestor (parent) components, which are demonstrated in the following two sub-sections:
+
+* Explicitly set the cascaded generic type.
+* Infer the cascaded generic type.
+
+The following subsections provide examples of the preceding approaches using the following two `ListDisplay` components. The components receive and render list data and are generically typed as `TExample`. These components are for demonstration purposes and only differ in the color of text that the list is rendered. If you wish to experiment with the components in the following sub-sections in a local test app, add the following two components to the app first.
+
+`Shared/ListDisplay1.razor`:
+
+```razor
+@typeparam TExample
+
+@if (ExampleList is not null)
+{
+    <ul style="color:blue">
+        @foreach (var item in ExampleList)
+        {
+            <li>@item</li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public IEnumerable<TExample>? ExampleList { get; set; }
+}
+```
+
+`Shared/ListDisplay2.razor`:
+
+```razor
+@typeparam TExample
+
+@if (ExampleList is not null)
+{
+    <ul style="color:red">
+        @foreach (var item in ExampleList)
+        {
+            <li>@item</li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public IEnumerable<TExample>? ExampleList { get; set; }
+}
+```
+
+### Explicit generic types based on ancestor components
+
+The demonstration in this section cascades a type explicitly for `TExample`.
+
+> [!NOTE]
+> This section uses the two `ListDisplay` components in the [Cascaded generic type support](#cascaded-generic-type-support) section.
+
+The following `ListGenericTypeItems2` component receives data and cascades a generic type parameter named `TExample` to its descendent components. In the upcoming parent component, the `ListGenericTypeItems2` component is used to display list data with the preceding `ListDisplay` component.
+
+`Shared/ListGenericTypeItems2.razor`:
+
+```razor
+@attribute [CascadingTypeParameter(nameof(TExample))]
+@typeparam TExample
+
+<h2>List Generic Type Items 2</h2>
+
+@ChildContent
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
+```
+
+The following `GenericTypeExample2` parent component sets the child content (<xref:Microsoft.AspNetCore.Components.RenderFragment>) of two `ListGenericTypeItems2` components specifying the `ListGenericTypeItems2` types (`TExample`), which are cascaded to child components. `ListDisplay` components are rendered with the list item data shown in the example. String data is used with the first `ListGenericTypeItems2` component, and integer data is used with the second `ListGenericTypeItems2` component.
+
+`Pages/GenericTypeExample2.razor`:
+
+```razor
+@page "/generic-type-example-2"
+
+<h1>Generic Type Example 2</h1>
+
+<ListGenericTypeItems2 TExample="string">
+    <ListDisplay1 ExampleList="@(new List<string> { "Item 1", "Item 2" })" />
+    <ListDisplay2 ExampleList="@(new List<string> { "Item 3", "Item 4" })" />
+</ListGenericTypeItems2>
+
+<ListGenericTypeItems2 TExample="int">
+    <ListDisplay1 ExampleList="@(new List<int> { 1, 2, 3 })" />
+    <ListDisplay2 ExampleList="@(new List<int> { 4, 5, 6 })" />
+</ListGenericTypeItems2>
+```
+
+Specifying the type explicitly also allows the use of [cascading values and parameters](xref:blazor/components/cascading-values-and-parameters) to provide data to child components, as the following demonstration shows.
+
+`Shared/ListDisplay3.razor`:
+
+```razor
+@typeparam TExample
+
+@if (ExampleList is not null)
+{
+    <ul style="color:blue">
+        @foreach (var item in ExampleList)
+        {
+            <li>@item</li>
+        }
+    </ul>
+}
+
+@code {
+    [CascadingParameter]
+    protected IEnumerable<TExample>? ExampleList { get; set; }
+}
+```
+
+`Shared/ListDisplay4.razor`:
+
+```razor
+@typeparam TExample
+
+@if (ExampleList is not null)
+{
+    <ul style="color:red">
+        @foreach (var item in ExampleList)
+        {
+            <li>@item</li>
+        }
+    </ul>
+}
+
+@code {
+    [CascadingParameter]
+    protected IEnumerable<TExample>? ExampleList { get; set; }
+}
+```
+
+`Shared/ListGenericTypeItems3.razor`:
+
+```razor
+@attribute [CascadingTypeParameter(nameof(TExample))]
+@typeparam TExample
+
+<h2>List Generic Type Items 3</h2>
+
+@ChildContent
+
+@if (ExampleList is not null)
+{
+    <ul style="color:green">
+        @foreach(var item in ExampleList)
+        {
+            <li>@item</li>
+        }
+    </ul>
+
+    <p>
+        Type of <code>TExample</code>: @typeof(TExample)
+    </p>
+}
+
+@code {
+    [CascadingParameter]
+    protected IEnumerable<TExample>? ExampleList { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
+```
+
+When cascading the data in the following example, the type must be provided to the `ListGenericTypeItems3` component.
+
+`Pages/GenericTypeExample3.razor`:
+
+```razor
+@page "/generic-type-example-3"
+
+<h1>Generic Type Example 3</h1>
+
+<CascadingValue Value="@stringData">
+    <ListGenericTypeItems3 TExample="string">
+        <ListDisplay3 />
+        <ListDisplay4 />
+    </ListGenericTypeItems3>
+</CascadingValue>
+
+<CascadingValue Value="@integerData">
+    <ListGenericTypeItems3 TExample="int">
+        <ListDisplay3 />
+        <ListDisplay4 />
+    </ListGenericTypeItems3>
+</CascadingValue>
+
+@code {
+    private List<string> stringData = new() { "Item 1", "Item 2" };
+    private List<int> integerData = new() { 1, 2, 3 };
+}
+```
+
+When multiple generic types are cascaded, values for all generic types in the set must be passed. In the following example, `TItem`, `TValue`, and `TEdit` are `GridColumn` generic types, but the parent component that places `GridColumn` doesn't specify the `TItem` type:
+
+```razor
+<GridColumn TValue="string" TEdit="@TextEdit" />
+```
+
+The preceding example generates a compile-time error that the `GridColumn` component is missing the `TItem` type parameter. Valid code specifies all of the types:
+
+```razor
+<GridColumn TValue="string" TEdit="@TextEdit" TItem="@User" />
+```
+
+### Infer generic types based on ancestor components
+
+The demonstration in this section cascades a type inferred for `TExample`.
+
+> [!NOTE]
+> This section uses the two `ListDisplay` components in the [Cascaded generic type support](#cascaded-generic-type-support) section.
+
+`Shared/ListGenericTypeItems4.razor`:
+
+```razor
+@attribute [CascadingTypeParameter(nameof(TExample))]
+@typeparam TExample
+
+<h2>List Generic Type Items 4</h2>
+
+@ChildContent
+
+@if (ExampleList is not null)
+{
+    <ul style="color:green">
+        @foreach(var item in ExampleList)
+        {
+            <li>@item</li>
+        }
+    </ul>
+
+    <p>
+        Type of <code>TExample</code>: @typeof(TExample)
+    </p>
+}
+
+@code {
+    [Parameter]
+    public IEnumerable<TExample>? ExampleList { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
+```
+
+The following `GenericTypeExample4` component with inferred cascaded types provides different data for display.
+
+`Pages/GenericTypeExample4.razor`:
+
+```razor
+@page "/generic-type-example-4"
+
+<h1>Generic Type Example 4</h1>
+
+<ListGenericTypeItems4 ExampleList="@(new List<string> { "Item 5", "Item 6" })">
+    <ListDisplay1 ExampleList="@(new List<string> { "Item 1", "Item 2" })" />
+    <ListDisplay2 ExampleList="@(new List<string> { "Item 3", "Item 4" })" />
+</ListGenericTypeItems4>
+
+<ListGenericTypeItems4 ExampleList="@(new List<int> { 7, 8, 9 })">
+    <ListDisplay1 ExampleList="@(new List<int> { 1, 2, 3 })" />
+    <ListDisplay2 ExampleList="@(new List<int> { 4, 5, 6 })" />
+</ListGenericTypeItems4>
+```
+
+The following `GenericTypeExample5` component with inferred cascaded types provides the same data for display. The following example directly assigns the data to the components.
+
+`Pages/GenericTypeExample5.razor`:
+
+```razor
+@page "/generic-type-example-5"
+
+<h1>Generic Type Example 5</h1>
+
+<ListGenericTypeItems4 ExampleList="@stringData">
+    <ListDisplay1 ExampleList="@stringData" />
+    <ListDisplay2 ExampleList="@stringData" />
+</ListGenericTypeItems4>
+
+<ListGenericTypeItems4 ExampleList="@integerData">
+    <ListDisplay1 ExampleList="@integerData" />
+    <ListDisplay2 ExampleList="@integerData" />
+</ListGenericTypeItems4>
+
+@code {
+    private List<string> stringData = new() { "Item 1", "Item 2" };
+    private List<int> integerData = new() { 1, 2, 3 };
+}
+```
+
+## Render Razor components from JavaScript
+
+Razor components can be dynamically-rendered from JavaScript (JS) for existing JS apps.
+
+To render a Razor component from JS, register the component as a root component for JS rendering and assign the component an identifier:
+
+* In a Blazor Server app, modify the call to <xref:Microsoft.Extensions.DependencyInjection.ComponentServiceCollectionExtensions.AddServerSideBlazor%2A> in `Program.cs`:
+
+  ```csharp
+  builder.Services.AddServerSideBlazor(options =>
+  {
+      options.RootComponents.RegisterForJavaScript<Counter>(identifier: "counter");
+  });
+  ```
+  
+  > [!NOTE]
+  > The preceding code example requires a namespace for the app's components (for example, `using BlazorSample.Pages;`) in the `Program.cs` file.
+
+* In a Blazor WebAssembly app, call <xref:Microsoft.AspNetCore.Components.Web.JSComponentConfigurationExtensions.RegisterForJavaScript%2A> on <xref:Microsoft.AspNetCore.Components.WebAssembly.Hosting.WebAssemblyHostBuilder.RootComponents> in `Program.cs`:
+
+  ```csharp
+  builder.RootComponents.RegisterForJavaScript<Counter>(identifier: "counter");
+  ```
+  
+  > [!NOTE]
+  > The preceding code example requires a namespace for the app's components (for example, `using BlazorSample.Pages;`) in the `Program.cs` file.
+
+Load Blazor into the JS app (`blazor.server.js` or `blazor.webassembly.js`). Render the component from JS into a container element using the registered identifier, passing component parameters as needed:
+
+```javascript
+let containerElement = document.getElementById('my-counter');
+await Blazor.rootComponents.add(containerElement, 'counter', { incrementAmount: 10 });
+```
+
+## Blazor custom elements
+
+*Experimental* support is available for building custom elements using the [`Microsoft.AspNetCore.Components.CustomElements` NuGet package](https://www.nuget.org/packages/microsoft.aspnetcore.components.customelements). Custom elements use standard HTML interfaces to implement custom HTML elements.
+
+> [!WARNING]
+> Experimental features are provided for the purpose of exploring feature viability and may not ship in a stable version.
+
+Register a root component as a custom element:
+
+* In a Blazor Server app, modify the call to <xref:Microsoft.Extensions.DependencyInjection.ComponentServiceCollectionExtensions.AddServerSideBlazor%2A> in `Program.cs`:
+
+  ```csharp
+  builder.Services.AddServerSideBlazor(options =>
+  {
+      options.RootComponents.RegisterAsCustomElement<Counter>("my-counter");
+  });
+  ```
+  
+  > [!NOTE]
+  > The preceding code example requires a namespace for the app's components (for example, `using BlazorSample.Pages;`) in the `Program.cs` file.
+
+* In a Blazor WebAssembly app, call `RegisterAsCustomElement` on <xref:Microsoft.AspNetCore.Components.WebAssembly.Hosting.WebAssemblyHostBuilder.RootComponents> in `Program.cs`:
+
+  ```csharp
+  builder.RootComponents.RegisterAsCustomElement<Counter>("my-counter");
+  ```
+  
+  > [!NOTE]
+  > The preceding code example requires a namespace for the app's components (for example, `using BlazorSample.Pages;`) in the `Program.cs` file.
+
+Include the following `<script>` tag in the app's HTML ***before*** the Blazor script tag:
+
+```html
+<script src="/_content/Microsoft.AspNetCore.Components.CustomElements/BlazorCustomElements.js"></script>
+```
+
+Use the custom element with any web framework. For example, the preceding counter custom element is used in a React app with the following markup:
+
+```html
+<my-counter increment-amount={incrementAmount}></my-counter>
+```
+
+For a complete example of how to create custom elements with Blazor, see the [Blazor Custom Elements sample project](https://github.com/aspnet/AspLabs/tree/main/src/BlazorCustomElements).
+
+> [!WARNING]
+> The custom elements feature is currently **experimental, unsupported, and subject to change or be removed at any time**. We welcome your feedback on how well this particular approach meets your requirements.
+
+## Generate Angular and React components
+
+Generate framework-specific JavaScript (JS) components from Razor components for web frameworks, such as Angular or React. This capability isn't included with .NET 6, but is enabled by the new support for rendering Razor components from JS. The [JS component generation sample on GitHub](https://github.com/aspnet/samples/tree/main/samples/aspnetcore/blazor/JSComponentGeneration) demonstrates how to generate Angular and React components from Razor components. See the GitHub sample app's `README.md` file for additional information.
+
+> [!WARNING]
+> The Angular and React component features are currently **experimental, unsupported, and subject to change or be removed at any time**. We welcome your feedback on how well this particular approach meets your requirements.
+
+:::moniker-end
+
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+
+Blazor apps are built using *Razor components*, informally known as *Blazor components*. A component is a self-contained portion of user interface (UI) with processing logic to enable dynamic behavior. Components can be nested, reused, shared among projects, and [used in MVC and Razor Pages apps](xref:blazor/components/prerendering-and-integration).
 
 ## Component classes
 
@@ -1060,19 +1511,7 @@ The following `HelloWorld` component uses a route template of `/hello-world`. Th
 
 The preceding component loads in the browser at `/hello-world` regardless of whether or not you add the component to the app's UI navigation. Optionally, components can be added to the `NavMenu` component so that a link to the component appears in the app's UI-based navigation.
 
-For the preceding `HelloWorld` component, add the following `NavLink` component to the `NavMenu` component. Add the `NavLink` component in a new list item (`<li>...</li>`) between the unordered list tags (`<ul>...</ul>`).
-
-`Shared/NavMenu.razor`:
-
-```razor
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="hello-world">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> Hello World!
-    </NavLink>
-</li>
-```
-
-For more information, including descriptions of the `NavLink` and `NavMenu` components, see <xref:blazor/fundamentals/routing>.
+For the preceding `HelloWorld` component, you can add a `NavLink` component to the `NavMenu` component in the `Shared` folder. For more information, including descriptions of the `NavLink` and `NavMenu` components, see <xref:blazor/fundamentals/routing>.
 
 ### Markup
 
@@ -1099,6 +1538,12 @@ Component members are used in rendering logic using C# expressions that start wi
 The Blazor framework processes a component internally as a [*render tree*](https://developer.mozilla.org/docs/Web/Performance/How_browsers_work#render), which is the combination of a component's [Document Object Model (DOM)](https://developer.mozilla.org/docs/Web/API/Document_Object_Model/Introduction) and [Cascading Style Sheet Object Model (CSSOM)](https://developer.mozilla.org/docs/Web/API/CSS_Object_Model). After the component is initially rendered, the component's render tree is regenerated in response to events. Blazor compares the new render tree against the previous render tree and applies any modifications to the browser's DOM for display. For more information, see <xref:blazor/components/rendering>.
 
 Components are ordinary [C# classes](/dotnet/csharp/programming-guide/classes-and-structs/classes) and can be placed anywhere within a project. Components that produce webpages usually reside in the `Pages` folder. Non-page components are frequently placed in the `Shared` folder or a custom folder added to the project.
+
+Razor syntax for C# control structures, directives, and directive attributes are lowercase (examples: [`@if`](xref:mvc/views/razor#conditionals-if-else-if-else-and-switch), [`@code`](xref:mvc/views/razor#code), [`@bind`](xref:mvc/views/razor#bind)). Property names are uppercase (example: `@Body` for <xref:Microsoft.AspNetCore.Components.LayoutComponentBase.Body?displayProperty=nameWithType>).
+
+### Asynchronous methods (`async`) don't support returning `void`
+
+The Blazor framework doesn't track `void`-returning asynchronous methods (`async`). As a result, exceptions aren't caught if `void` is returned. Always return a <xref:System.Threading.Tasks.Task> from asynchronous methods.
 
 ### Nested components
 
@@ -1289,6 +1734,20 @@ Assign a C# field, property, or result of a method to a component parameter as a
 * The current local date in long format with <xref:System.DateTime.ToLongDateString%2A>, which uses an [implicit C# expression](xref:mvc/views/razor#implicit-razor-expressions).
 * The `panelData` object's `Title` property.
 
+The `@` prefix is required for string parameters. Otherwise, the framework assumes that a string literal is set.
+
+Outside of string parameters, we recommend use the use of the `@` prefix for nonliterals, even when they aren't strictly required.
+
+We don't recommend the use of the `@` prefix for literals (for example, boolean values), keywords (for example, `this`), or `null`, but you can choose to use them if you wish. For example, `IsFixed="@true"` is uncommon but supported.
+
+Quotes around parameter attribute values are optional in most cases per the HTML5 specification. For example, `Value=this` is supported, instead of `Value="this"`. However, we recommend using quotes because it's easier to remember and widely adopted across web-based technologies.
+
+Throughout the documentation, code examples:
+
+* Always use quotes. Example: `Value="this"`.
+* Nonliterals always use the `@` prefix, even when it's optional. Examples: `Title="@title"`, where `title` is a string-typed variable. `Count="@ct"`, where `ct` is a number-typed variable.
+* Literals, outside of Razor expressions, always avoid `@`. Example: `IsFixed="true"`.
+
 `Pages/ParameterParent2.razor`:
 
 [!code-razor[](~/blazor/samples/5.0/BlazorSample_WebAssembly/Pages/index/ParameterParent2.razor)]
@@ -1463,6 +1922,8 @@ In the following example, the `RenderFragmentChild` component has a `ChildConten
 
 > [!IMPORTANT]
 > The property receiving the <xref:Microsoft.AspNetCore.Components.RenderFragment> content must be named `ChildContent` by convention.
+>
+> [Event callbacks](xref:blazor/components/event-handling#eventcallback) aren't supported for <xref:Microsoft.AspNetCore.Components.RenderFragment>.
 
 The following `RenderFragmentParent` component provides content for rendering the `RenderFragmentChild` by placing the content inside the child component's opening and closing tags.
 
@@ -1498,10 +1959,22 @@ Alternatively, use a [`foreach`](/dotnet/csharp/language-reference/keywords/fore
 }
 ```
 
+> [!NOTE]
+> Assignment to a <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate is only supported in Razor component files (`.razor`):
+> 
+> ```razor
+> private RenderFragment RenderWelcomeInfo = __builder =>
+> {
+>     <p>Welcome to your new app!</p>
+> };
+> ```
+>
+> For more information, see <xref:blazor/performance#define-reusable-renderfragments-in-code>.
+
 For information on how a <xref:Microsoft.AspNetCore.Components.RenderFragment> can be used as a template for component UI, see the following articles:
 
 * <xref:blazor/components/templated-components>
-* <xref:blazor/webassembly-performance-best-practices#define-reusable-renderfragments-in-code>
+* <xref:blazor/performance#define-reusable-renderfragments-in-code>
 
 ## Attribute splatting and arbitrary parameters
 
@@ -1608,15 +2081,6 @@ The following delegate approach uses the preceding `ReferenceChild` component.
 
 [!code-razor[](~/blazor/samples/5.0/BlazorSample_WebAssembly/Pages/index/ReferenceParent2.razor)]
 
-Use a collection to reference components in a loop. In the following example:
-
-* Components are added to a <xref:System.Collections.Generic.List%601>.
-* A button is created for each component that triggers the corresponding component's `ChildMethod` by its component index in the <xref:System.Collections.Generic.List%601>.
-
-`Pages/ReferenceParent3.razor` using the preceding `ReferenceChild` component:
-
-[!code-razor[](~/blazor/samples/5.0/BlazorSample_WebAssembly/Pages/index/ReferenceParent3.razor)]
-
 While capturing component references use a similar syntax to [capturing element references](xref:blazor/js-interop/call-javascript-from-dotnet#capture-references-to-elements), capturing component references isn't a JavaScript interop feature. Component references aren't passed to JavaScript code. Component references are only used in .NET code.
 
 > [!IMPORTANT]
@@ -1646,33 +2110,39 @@ Generally, don't call the following methods in components. The following methods
 
 In the event a component must be updated based on an external event, such as a timer or other notification, use the `InvokeAsync` method, which dispatches code execution to Blazor's synchronization context. For example, consider the following *notifier service* that can notify any listening component about updated state. The `Update` method can be called from anywhere in the app.
 
-`Notifier.cs`:
+`TimerService.cs`:
 
-[!code-csharp[](~/blazor/samples/5.0/BlazorSample_WebAssembly/Notifier.cs)]
+[!code-csharp[](~/blazor/samples/5.0/BlazorSample_WebAssembly/TimerService.cs)]
 
-Register the `Notifier` service:
+`NotifierService.cs`:
 
-* In a Blazor WebAssembly app, register the service as singleton in `Program.Main`:
+[!code-csharp[](~/blazor/samples/5.0/BlazorSample_WebAssembly/NotifierService.cs)]
 
-  ```csharp
-  builder.Services.AddSingleton<Notifier>();
-  ```
+Register the services:
 
-* In a Blazor Server app, register the service as scoped in `Startup.ConfigureServices`:
+* In a Blazor WebAssembly app, register the services as singletons in `Program.cs`:
 
   ```csharp
-  services.AddScoped<Notifier>();
+  builder.Services.AddSingleton<NotifierService>();
+  builder.Services.AddSingleton<TimerService>();
   ```
 
-Use the `Notifier` service to update a component.
+* In a Blazor Server app, register the services as scoped in `Startup.ConfigureServices`:
 
-`Pages/NotifierExample.razor`:
+  ```csharp
+  services.AddScoped<NotifierService>();
+  services.AddScoped<TimerService>();
+  ```
 
-[!code-razor[](~/blazor/samples/5.0/BlazorSample_WebAssembly/Pages/index/NotifierExample.razor)]
+Use the `NotifierService` to update a component.
+
+`Pages/ReceiveNotifications.razor`:
+
+[!code-razor[](~/blazor/samples/5.0/BlazorSample_WebAssembly/Pages/index/ReceiveNotifications.razor)]
 
 In the preceding example:
 
-* `Notifier` invokes the component's `OnNotify` method outside of Blazor's synchronization context. `InvokeAsync` is used to switch to the correct context and queue a render. For more information, see <xref:blazor/components/rendering>.
+* `NotifierService` invokes the component's `OnNotify` method outside of Blazor's synchronization context. `InvokeAsync` is used to switch to the correct context and queue a render. For more information, see <xref:blazor/components/rendering>.
 * The component implements <xref:System.IDisposable>. The `OnNotify` delegate is unsubscribed in the `Dispose` method, which is called by the framework when the component is disposed. For more information, see <xref:blazor/components/lifecycle#component-disposal-with-idisposable-and-iasyncdisposable>.
 
 ## Use `@key` to control the preservation of elements and components
@@ -1955,16 +2425,31 @@ The [`@typeparam`][11] directive declares a [generic type parameter](/dotnet/csh
 @typeparam TItem
 ```
 
+In the following example, the `ListGenericTypeItems1` component is generically typed as `TExample`.
+
+`Shared/ListGenericTypeItems1.razor`:
+
+[!code-razor[](~/blazor/samples/5.0/BlazorSample_WebAssembly/Shared/index/ListGenericTypeItems1.razor)]
+
+The following `GenericTypeExample1` component renders two `ListGenericTypeItems1` components:
+
+* String or integer data is assigned to the `ExampleList` parameter of each component.
+* Type `string` or `int` that matches the type of the assigned data is set for the type parameter (`TExample`) of each component.
+
+`Pages/GenericTypeExample1.razor`:
+
+[!code-razor[](~/blazor/samples/5.0/BlazorSample_WebAssembly/Pages/index/GenericTypeExample1.razor)]
+
 For more information, see the following articles:
 
 * <xref:mvc/views/razor#typeparam>
 * <xref:blazor/components/templated-components>
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
-Blazor apps are built using *Razor components*. A component is a self-contained portion of user interface (UI) with processing logic to enable dynamic behavior. Components can be nested, reused, shared among projects, and [used in MVC and Razor Pages apps](xref:blazor/components/prerendering-and-integration).
+Blazor apps are built using *Razor components*, informally known as *Blazor components*. A component is a self-contained portion of user interface (UI) with processing logic to enable dynamic behavior. Components can be nested, reused, shared among projects, and [used in MVC and Razor Pages apps](xref:blazor/components/prerendering-and-integration).
 
 ## Component classes
 
@@ -2005,19 +2490,7 @@ The following `HelloWorld` component uses a route template of `/hello-world`. Th
 
 The preceding component loads in the browser at `/hello-world` regardless of whether or not you add the component to the app's UI navigation. Optionally, components can be added to the `NavMenu` component so that a link to the component appears in the app's UI-based navigation.
 
-For the preceding `HelloWorld` component, add the following `NavLink` component to the `NavMenu` component. Add the `NavLink` component in a new list item (`<li>...</li>`) between the unordered list tags (`<ul>...</ul>`).
-
-`Shared/NavMenu.razor`:
-
-```razor
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="hello-world">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> Hello World!
-    </NavLink>
-</li>
-```
-
-For more information, including descriptions of the `NavLink` and `NavMenu` components, see <xref:blazor/fundamentals/routing>.
+For the preceding `HelloWorld` component, you can add a `NavLink` component to the `NavMenu` component in the `Shared` folder. For more information, including descriptions of the `NavLink` and `NavMenu` components, see <xref:blazor/fundamentals/routing>.
 
 ### Markup
 
@@ -2044,6 +2517,12 @@ Component members are used in rendering logic using C# expressions that start wi
 The Blazor framework processes a component internally as a [*render tree*](https://developer.mozilla.org/docs/Web/Performance/How_browsers_work#render), which is the combination of a component's [Document Object Model (DOM)](https://developer.mozilla.org/docs/Web/API/Document_Object_Model/Introduction) and [Cascading Style Sheet Object Model (CSSOM)](https://developer.mozilla.org/docs/Web/API/CSS_Object_Model). After the component is initially rendered, the component's render tree is regenerated in response to events. Blazor compares the new render tree against the previous render tree and applies any modifications to the browser's DOM for display. For more information, see <xref:blazor/components/rendering>.
 
 Components are ordinary [C# classes](/dotnet/csharp/programming-guide/classes-and-structs/classes) and can be placed anywhere within a project. Components that produce webpages usually reside in the `Pages` folder. Non-page components are frequently placed in the `Shared` folder or a custom folder added to the project.
+
+Razor syntax for C# control structures, directives, and directive attributes are lowercase (examples: [`@if`](xref:mvc/views/razor#conditionals-if-else-if-else-and-switch), [`@code`](xref:mvc/views/razor#code), [`@bind`](xref:mvc/views/razor#bind)). Property names are uppercase (example: `@Body` for <xref:Microsoft.AspNetCore.Components.LayoutComponentBase.Body?displayProperty=nameWithType>).
+
+### Asynchronous methods (`async`) don't support returning `void`
+
+The Blazor framework doesn't track `void`-returning asynchronous methods (`async`). As a result, exceptions aren't caught if `void` is returned. Always return a <xref:System.Threading.Tasks.Task> from asynchronous methods.
 
 ### Nested components
 
@@ -2228,6 +2707,20 @@ Assign a C# field, property, or result of a method to a component parameter as a
 * The current local date in long format with <xref:System.DateTime.ToLongDateString%2A>, which uses an [implicit C# expression](xref:mvc/views/razor#implicit-razor-expressions).
 * The `panelData` object's `Title` property.
 
+The `@` prefix is required for string parameters. Otherwise, the framework assumes that a string literal is set.
+
+Outside of string parameters, we recommend use the use of the `@` prefix for nonliterals, even when they aren't strictly required.
+
+We don't recommend the use of the `@` prefix for literals (for example, boolean values), keywords (for example, `this`), or `null`, but you can choose to use them if you wish. For example, `IsFixed="@true"` is uncommon but supported.
+
+Quotes around parameter attribute values are optional in most cases per the HTML5 specification. For example, `Value=this` is supported, instead of `Value="this"`. However, we recommend using quotes because it's easier to remember and widely adopted across web-based technologies.
+
+Throughout the documentation, code examples:
+
+* Always use quotes. Example: `Value="this"`.
+* Nonliterals always use the `@` prefix, even when it's optional. Examples: `Title="@title"`, where `title` is a string-typed variable. `Count="@ct"`, where `ct` is a number-typed variable.
+* Literals, outside of Razor expressions, always avoid `@`. Example: `IsFixed="true"`.
+
 `Pages/ParameterParent2.razor`:
 
 [!code-razor[](~/blazor/samples/3.1/BlazorSample_WebAssembly/Pages/index/ParameterParent2.razor)]
@@ -2402,6 +2895,8 @@ In the following example, the `RenderFragmentChild` component has a `ChildConten
 
 > [!IMPORTANT]
 > The property receiving the <xref:Microsoft.AspNetCore.Components.RenderFragment> content must be named `ChildContent` by convention.
+>
+> [Event callbacks](xref:blazor/components/event-handling#eventcallback) aren't supported for <xref:Microsoft.AspNetCore.Components.RenderFragment>.
 
 The following `RenderFragmentParent` component provides content for rendering the `RenderFragmentChild` by placing the content inside the child component's opening and closing tags.
 
@@ -2437,10 +2932,22 @@ Alternatively, use a [`foreach`](/dotnet/csharp/language-reference/keywords/fore
 }
 ```
 
+> [!NOTE]
+> Assignment to a <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate is only supported in Razor component files (`.razor`):
+> 
+> ```razor
+> private RenderFragment RenderWelcomeInfo = __builder =>
+> {
+>     <p>Welcome to your new app!</p>
+> };
+> ```
+>
+> For more information, see <xref:blazor/performance#define-reusable-renderfragments-in-code>.
+
 For information on how a <xref:Microsoft.AspNetCore.Components.RenderFragment> can be used as a template for component UI, see the following articles:
 
 * <xref:blazor/components/templated-components>
-* <xref:blazor/webassembly-performance-best-practices#define-reusable-renderfragments-in-code>
+* <xref:blazor/performance#define-reusable-renderfragments-in-code>
 
 ## Attribute splatting and arbitrary parameters
 
@@ -2547,15 +3054,6 @@ The following delegate approach uses the preceding `ReferenceChild` component.
 
 [!code-razor[](~/blazor/samples/3.1/BlazorSample_WebAssembly/Pages/index/ReferenceParent2.razor)]
 
-Use a collection to reference components in a loop. In the following example:
-
-* Components are added to a <xref:System.Collections.Generic.List%601>.
-* A button is created for each component that triggers the corresponding component's `ChildMethod` by its component index in the <xref:System.Collections.Generic.List%601>.
-
-`Pages/ReferenceParent3.razor` using the preceding `ReferenceChild` component:
-
-[!code-razor[](~/blazor/samples/3.1/BlazorSample_WebAssembly/Pages/index/ReferenceParent3.razor)]
-
 While capturing component references use a similar syntax to [capturing element references](xref:blazor/js-interop/call-javascript-from-dotnet#capture-references-to-elements), capturing component references isn't a JavaScript interop feature. Component references aren't passed to JavaScript code. Component references are only used in .NET code.
 
 > [!IMPORTANT]
@@ -2585,33 +3083,39 @@ Generally, don't call the following methods in components. The following methods
 
 In the event a component must be updated based on an external event, such as a timer or other notification, use the `InvokeAsync` method, which dispatches code execution to Blazor's synchronization context. For example, consider the following *notifier service* that can notify any listening component about updated state. The `Update` method can be called from anywhere in the app.
 
-`Notifier.cs`:
+`TimerService.cs`:
 
-[!code-csharp[](~/blazor/samples/3.1/BlazorSample_WebAssembly/Notifier.cs)]
+[!code-csharp[](~/blazor/samples/3.1/BlazorSample_WebAssembly/TimerService.cs)]
 
-Register the `Notifier` service:
+`NotifierService.cs`:
 
-* In a Blazor WebAssembly app, register the service as singleton in `Program.Main`:
+[!code-csharp[](~/blazor/samples/3.1/BlazorSample_WebAssembly/NotifierService.cs)]
 
-  ```csharp
-  builder.Services.AddSingleton<Notifier>();
-  ```
+Register the services:
 
-* In a Blazor Server app, register the service as scoped in `Startup.ConfigureServices`:
+* In a Blazor WebAssembly app, register the services as singletons in `Program.cs`:
 
   ```csharp
-  services.AddScoped<Notifier>();
+  builder.Services.AddSingleton<NotifierService>();
+  builder.Services.AddSingleton<TimerService>();
   ```
 
-Use the `Notifier` service to update a component.
+* In a Blazor Server app, register the services as scoped in `Startup.ConfigureServices`:
 
-`Pages/NotifierExample.razor`:
+  ```csharp
+  services.AddScoped<NotifierService>();
+  services.AddScoped<TimerService>();
+  ```
 
-[!code-razor[](~/blazor/samples/3.1/BlazorSample_WebAssembly/Pages/index/NotifierExample.razor)]
+Use the `NotifierService` to update a component.
+
+`Pages/ReceiveNotifications.razor`:
+
+[!code-razor[](~/blazor/samples/3.1/BlazorSample_WebAssembly/Pages/index/ReceiveNotifications.razor)]
 
 In the preceding example:
 
-* `Notifier` invokes the component's `OnNotify` method outside of Blazor's synchronization context. `InvokeAsync` is used to switch to the correct context and queue a render. For more information, see <xref:blazor/components/rendering>.
+* `NotifierService` invokes the component's `OnNotify` method outside of Blazor's synchronization context. `InvokeAsync` is used to switch to the correct context and queue a render. For more information, see <xref:blazor/components/rendering>.
 * The component implements <xref:System.IDisposable>. The `OnNotify` delegate is unsubscribed in the `Dispose` method, which is called by the framework when the component is disposed. For more information, see <xref:blazor/components/lifecycle#component-disposal-with-idisposable-and-iasyncdisposable>.
 
 ## Use `@key` to control the preservation of elements and components
@@ -2916,12 +3420,27 @@ The [`@typeparam`][11] directive declares a [generic type parameter](/dotnet/csh
 @typeparam TItem
 ```
 
+In the following example, the `ListGenericTypeItems1` component is generically typed as `TExample`.
+
+`Shared/ListGenericTypeItems1.razor`:
+
+[!code-razor[](~/blazor/samples/3.1/BlazorSample_WebAssembly/Shared/index/ListGenericTypeItems1.razor)]
+
+The following `GenericTypeExample1` component renders two `ListGenericTypeItems1` components:
+
+* String or integer data is assigned to the `ExampleList` parameter of each component.
+* Type `string` or `int` that matches the type of the assigned data is set for the type parameter (`TExample`) of each component.
+
+`Pages/GenericTypeExample1.razor`:
+
+[!code-razor[](~/blazor/samples/3.1/BlazorSample_WebAssembly/Pages/index/GenericTypeExample1.razor)]
+
 For more information, see the following articles:
 
 * <xref:mvc/views/razor#typeparam>
 * <xref:blazor/components/templated-components>
 
-::: moniker-end
+:::moniker-end
 
 <!--Reference links in article-->
 [1]: <xref:mvc/views/razor#code>

@@ -1,24 +1,26 @@
 ---
-title: ASP.NET Core Blazor advanced scenarios
+title: ASP.NET Core Blazor advanced scenarios (render tree construction)
 author: guardrex
-description: Learn about advanced scenarios in Blazor, including how to incorporate manual RenderTreeBuilder logic into an app.
+description: Learn how to incorporate manual logic for building Blazor render trees (RenderTreeBuilder).
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 03/16/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
+ms.date: 11/09/2021
+no-loc: [".NET MAUI", "Mac Catalyst", "Blazor Hybrid", Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/advanced-scenarios
 ---
-# ASP.NET Core Blazor advanced scenarios
+# ASP.NET Core Blazor advanced scenarios (render tree construction)
 
-::: moniker range=">= aspnetcore-6.0"
-
-## Manual RenderTreeBuilder logic
-
-<xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> provides methods for manipulating components and elements, including building components manually in C# code.
+This article describes the advanced scenario for building Blazor render trees manually with <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder>.
 
 > [!WARNING]
-> Use of <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> to create components is an *advanced scenario*. A malformed component (for example, an unclosed markup tag) can result in undefined behavior. Undefined behavior includes broken content rendering, loss of app features, and **_compromised security_**.
+> Use of <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> to create components is an *advanced scenario*. A malformed component (for example, an unclosed markup tag) can result in undefined behavior. Undefined behavior includes broken content rendering, loss of app features, and ***compromised security***.
+
+:::moniker range=">= aspnetcore-6.0"
+
+## Manually build a render tree (`RenderTreeBuilder`)
+
+<xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> provides methods for manipulating components and elements, including building components manually in C# code.
 
 Consider the following `PetDetails` component, which can be manually rendered in another component.
 
@@ -65,14 +67,14 @@ if (someFlag)
 builder.AddContent(1, "Second");
 ```
 
-When the code executes for the first time, if `someFlag` is `true`, the builder receives:
+When the code executes for the first time and `someFlag` is `true`, the builder receives the sequence in the following table.
 
 | Sequence | Type      | Data   |
 | :------: | --------- | :----: |
 | 0        | Text node | First  |
 | 1        | Text node | Second |
 
-Imagine that `someFlag` becomes `false` and the markup is rendered again. This time, the builder receives:
+Imagine that `someFlag` becomes `false` and the markup is rendered again. This time, the builder receives the sequence in the following table.
 
 | Sequence | Type       | Data   |
 | :------: | ---------- | :----: |
@@ -97,14 +99,14 @@ if (someFlag)
 builder.AddContent(seq++, "Second");
 ```
 
-Now, the first output is:
+The first output is reflected in the following table.
 
 | Sequence | Type      | Data   |
 | :------: | --------- | :----: |
 | 0        | Text node | First  |
 | 1        | Text node | Second |
 
-This outcome is identical to the prior case, so no negative issues exist. `someFlag` is `false` on the second rendering, and the output is:
+This outcome is identical to the prior case, so no negative issues exist. `someFlag` is `false` on the second rendering, and the output is seen in the following table.
 
 | Sequence | Type      | Data   |
 | :------: | --------- | ------ |
@@ -127,16 +129,13 @@ This is a trivial example. In more realistic cases with complex and deeply neste
 * If sequence numbers are hardcoded, the diff algorithm only requires that sequence numbers increase in value. The initial value and gaps are irrelevant. One legitimate option is to use the code line number as the sequence number, or start from zero and increase by ones or hundreds (or any preferred interval).
 * Blazor uses sequence numbers, while other tree-diffing UI frameworks don't use them. Diffing is far faster when sequence numbers are used, and Blazor has the advantage of a compile step that deals with sequence numbers automatically for developers authoring `.razor` files.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
-## Manual RenderTreeBuilder logic
+## Manually build a render tree (`RenderTreeBuilder`)
 
 <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> provides methods for manipulating components and elements, including building components manually in C# code.
-
-> [!WARNING]
-> Use of <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> to create components is an *advanced scenario*. A malformed component (for example, an unclosed markup tag) can result in undefined behavior. Undefined behavior includes broken content rendering, loss of app features, and **_compromised security_**.
 
 Consider the following `PetDetails` component, which can be manually rendered in another component.
 
@@ -183,14 +182,14 @@ if (someFlag)
 builder.AddContent(1, "Second");
 ```
 
-When the code executes for the first time, if `someFlag` is `true`, the builder receives:
+When the code executes for the first time and `someFlag` is `true`, the builder receives the sequence in the following table.
 
 | Sequence | Type      | Data   |
 | :------: | --------- | :----: |
 | 0        | Text node | First  |
 | 1        | Text node | Second |
 
-Imagine that `someFlag` becomes `false` and the markup is rendered again. This time, the builder receives:
+Imagine that `someFlag` becomes `false` and the markup is rendered again. This time, the builder receives the sequence in the following table.
 
 | Sequence | Type       | Data   |
 | :------: | ---------- | :----: |
@@ -215,14 +214,14 @@ if (someFlag)
 builder.AddContent(seq++, "Second");
 ```
 
-Now, the first output is:
+The first output is seen in the following table.
 
 | Sequence | Type      | Data   |
 | :------: | --------- | :----: |
 | 0        | Text node | First  |
 | 1        | Text node | Second |
 
-This outcome is identical to the prior case, so no negative issues exist. `someFlag` is `false` on the second rendering, and the output is:
+This outcome is identical to the prior case, so no negative issues exist. `someFlag` is `false` on the second rendering, and the output is seen in the following table.
 
 | Sequence | Type      | Data   |
 | :------: | --------- | ------ |
@@ -245,16 +244,13 @@ This is a trivial example. In more realistic cases with complex and deeply neste
 * If sequence numbers are hardcoded, the diff algorithm only requires that sequence numbers increase in value. The initial value and gaps are irrelevant. One legitimate option is to use the code line number as the sequence number, or start from zero and increase by ones or hundreds (or any preferred interval).
 * Blazor uses sequence numbers, while other tree-diffing UI frameworks don't use them. Diffing is far faster when sequence numbers are used, and Blazor has the advantage of a compile step that deals with sequence numbers automatically for developers authoring `.razor` files.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
-## Manual RenderTreeBuilder logic
+## Manually build a render tree (`RenderTreeBuilder`)
 
 <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> provides methods for manipulating components and elements, including building components manually in C# code.
-
-> [!WARNING]
-> Use of <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> to create components is an *advanced scenario*. A malformed component (for example, an unclosed markup tag) can result in undefined behavior. Undefined behavior includes broken content rendering, loss of app features, and **_compromised security_**.
 
 Consider the following `PetDetails` component, which can be manually rendered in another component.
 
@@ -301,14 +297,14 @@ if (someFlag)
 builder.AddContent(1, "Second");
 ```
 
-When the code executes for the first time, if `someFlag` is `true`, the builder receives:
+When the code executes for the first time and `someFlag` is `true`, the builder receives the sequence in the following table.
 
 | Sequence | Type      | Data   |
 | :------: | --------- | :----: |
 | 0        | Text node | First  |
 | 1        | Text node | Second |
 
-Imagine that `someFlag` becomes `false` and the markup is rendered again. This time, the builder receives:
+Imagine that `someFlag` becomes `false` and the markup is rendered again. This time, the builder receives the sequence in the following table.
 
 | Sequence | Type       | Data   |
 | :------: | ---------- | :----: |
@@ -333,14 +329,14 @@ if (someFlag)
 builder.AddContent(seq++, "Second");
 ```
 
-Now, the first output is:
+The first output is seen in the following table.
 
 | Sequence | Type      | Data   |
 | :------: | --------- | :----: |
 | 0        | Text node | First  |
 | 1        | Text node | Second |
 
-This outcome is identical to the prior case, so no negative issues exist. `someFlag` is `false` on the second rendering, and the output is:
+This outcome is identical to the prior case, so no negative issues exist. `someFlag` is `false` on the second rendering, and the output is seen in the following table.
 
 | Sequence | Type      | Data   |
 | :------: | --------- | ------ |
@@ -363,4 +359,4 @@ This is a trivial example. In more realistic cases with complex and deeply neste
 * If sequence numbers are hardcoded, the diff algorithm only requires that sequence numbers increase in value. The initial value and gaps are irrelevant. One legitimate option is to use the code line number as the sequence number, or start from zero and increase by ones or hundreds (or any preferred interval).
 * Blazor uses sequence numbers, while other tree-diffing UI frameworks don't use them. Diffing is far faster when sequence numbers are used, and Blazor has the advantage of a compile step that deals with sequence numbers automatically for developers authoring `.razor` files.
 
-::: moniker-end
+:::moniker-end

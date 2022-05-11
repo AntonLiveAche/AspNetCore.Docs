@@ -5,13 +5,15 @@ description: Learn how templated components can accept one or more UI templates 
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 03/04/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
+ms.date: 11/09/2021
+no-loc: [".NET MAUI", "Mac Catalyst", "Blazor Hybrid", Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/components/templated-components
 ---
 # ASP.NET Core Blazor templated components
 
-::: moniker range=">= aspnetcore-6.0"
+This article explains how templated components can accept one or more UI templates as parameters, which can then be used as part of the component's rendering logic.
+
+:::moniker range=">= aspnetcore-6.0"
 
 Templated components are components that accept one or more UI templates as parameters, which can then be used as part of the component's rendering logic. Templated components allow you to author higher-level components that are more reusable than regular components. A couple of examples include:
 
@@ -52,91 +54,13 @@ When using generic-typed components, the type parameter is inferred if possible.
 
 [!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Pages/templated-components/Pets4.razor?highlight=5)]
 
-## Infer generic types based on ancestor components
-
-An ancestor component can cascade a type parameter by name to descendants using the `CascadingTypeParameter` attribute. This attribute allows a generic type inference to use the specified type parameter automatically with descendants that have a type parameter with the same name.
-
-For example, the following `Chart` component receives stock price data and cascades a generic type parameter named `TLineData` to its descendent components.
-
-`Shared/Chart.razor`:
-
-```razor
-@attribute [CascadingTypeParameter(nameof(TLineData))]
-@typeparam TLineData
-
-...
-
-@code {
-    [Parameter]
-    public IEnumerable<TLineData> Data { get; set; }
-
-    [Parameter]
-    public RenderFragment ChildContent { get; set; }
-}
-```
-
-`Shared/Line.razor`:
-
-```razor
-@typeparam TLineData
-
-...
-
-@code {
-    [Parameter]
-    public string Title { get; set; }
-
-    [Parameter]
-    public decimal Value { get; set; }
-}
-```
-
-When the `Chart` component is used, `TLineData` isn't specified for each `Line` component of the chart.
-
-`Pages/StockPriceHistory.razor`:
-
-```razor
-@page "/stock-price-history"
-
-<Chart Data="stockPriceHistory.GroupBy(x => x.Date)">
-    <Line Title="Open" Value="day => day.Values.First()" />
-    <Line Title="High" Value="day => day.Values.Max()" />
-    <Line Title="Low" Value="day => day.Values.Min()" />
-    <Line Title="Close" Value="day => day.Values.Last()" />
-</Chart>
-```
-
-> [!NOTE]
-> The Razor support in Visual Studio Code hasn't been updated to support this feature, so you may receive incorrect errors even though the project correctly builds. This will be addressed in an upcoming tooling release.
-
-By adding `@attribute [CascadingTypeParameter(...)]` to a component, the specified generic type argument is automatically used by descendants that:
-
-* Are nested as child content for the component in the same `.razor` document.
-* Also declare a [`@typeparam`](xref:mvc/views/razor#typeparam) with the exact same name.
-* Don't have another value supplied or inferred for the type parameter. If another value is supplied or inferred, it takes precedence over the cascaded generic type.
-
-When receiving a cascaded type parameter, components obtain the parameter value from the closest ancestor that has a `CascadingTypeParameter` with a matching name. Cascaded generic type parameters are overridden within a particular subtree.
-
-Matching is only performed by name. Therefore, we recommend avoiding a cascaded generic type parameter with a generic name, for example `T` or `TItem`. If a developer opts into cascading a type parameter, they're implicitly promising that its name is unique enough not to clash with other cascaded type parameters from unrelated components.
-
-Generic types with [`where`](/dotnet/csharp/language-reference/keywords/where-generic-type-constraint) type constraints are supported:
-
-```razor
-@typeparam TEntity where TEntity : IEntity
-```
-
-For more information, see the following articles:
-
-* <xref:mvc/views/razor#typeparam>
-* <xref:blazor/components/index#generic-type-parameter-support>
-
 ## Additional resources
 
-* <xref:blazor/webassembly-performance-best-practices#define-reusable-renderfragments-in-code>
+* <xref:blazor/performance#define-reusable-renderfragments-in-code>
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 Templated components are components that accept one or more UI templates as parameters, which can then be used as part of the component's rendering logic. Templated components allow you to author higher-level components that are more reusable than regular components. A couple of examples include:
 
@@ -177,17 +101,13 @@ When using generic-typed components, the type parameter is inferred if possible.
 
 [!code-razor[](~/blazor/samples/5.0/BlazorSample_WebAssembly/Pages/templated-components/Pets4.razor?highlight=5)]
 
-## Infer generic types based on ancestor components
-
-Inferred generic types are supported in ASP.NET Core 6.0 or later. For more information, see a 6.0 or later version of this article.
-
 ## Additional resources
 
-* <xref:blazor/webassembly-performance-best-practices#define-reusable-renderfragments-in-code>
+* <xref:blazor/performance#define-reusable-renderfragments-in-code>
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 Templated components are components that accept one or more UI templates as parameters, which can then be used as part of the component's rendering logic. Templated components allow you to author higher-level components that are more reusable than regular components. A couple of examples include:
 
@@ -228,12 +148,9 @@ When using generic-typed components, the type parameter is inferred if possible.
 
 [!code-razor[](~/blazor/samples/3.1/BlazorSample_WebAssembly/Pages/templated-components/Pets4.razor?highlight=5)]
 
-## Infer generic types based on ancestor components
-
-Inferred generic types are supported in ASP.NET Core 6.0 or later. For more information, see a 6.0 or later version of this article.
-
 ## Additional resources
 
-* <xref:blazor/webassembly-performance-best-practices#define-reusable-renderfragments-in-code>
+* <xref:blazor/performance#define-reusable-renderfragments-in-code>
+* <xref:blazor/components/index#generic-type-parameter-support>
 
-::: moniker-end
+:::moniker-end

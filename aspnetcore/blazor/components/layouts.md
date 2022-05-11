@@ -5,13 +5,15 @@ description: Learn how to create reusable layout components for Blazor apps.
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 03/02/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
+ms.date: 11/09/2021
+no-loc: [".NET MAUI", "Mac Catalyst", "Blazor Hybrid", Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/components/layouts
 ---
 # ASP.NET Core Blazor layouts
 
-::: moniker range=">= aspnetcore-6.0"
+This article explains how to create reusable layout components for Blazor apps.
+
+:::moniker range=">= aspnetcore-6.0"
 
 Some app elements, such as menus, copyright messages, and company logos, are usually part of app's overall presentation. Placing a copy of the markup for these elements into all of the components of an app isn't efficient. Every time that one of these elements is updated, every component that uses the element must be updated. This approach is costly to maintain and can lead to inconsistent content if an update is missed. *Layouts* solve these problems.
 
@@ -43,7 +45,7 @@ In an app created from a [Blazor project template](xref:blazor/project-structure
 
 [Blazor's CSS isolation feature](xref:blazor/components/css-isolation) applies isolated CSS styles to the `MainLayout` component. By convention, the styles are provided by the accompanying stylesheet of the same name, `Shared/MainLayout.razor.css`. The ASP.NET Core framework implementation of the stylesheet is available for inspection in the [ASP.NET Core reference source (dotnet/aspnetcore GitHub repository)](https://github.com/dotnet/aspnetcore/blob/main/src/ProjectTemplates/Web.ProjectTemplates/content/ComponentsWebAssembly-CSharp/Client/Shared/MainLayout.razor.css).
 
-[!INCLUDE[](~/blazor/includes/aspnetcore-repo-ref-source-links.md)]
+[!INCLUDE[](~/includes/aspnetcore-repo-ref-source-links.md)]
 
 ## Apply a layout
 
@@ -119,7 +121,7 @@ Specifying a layout in `_Imports.razor` overrides a layout specified as the rout
 
 ### Apply a default layout to an app
 
-Specify the default app layout in the in the `App` component's <xref:Microsoft.AspNetCore.Components.Routing.Router> component. The following example from an app based on a [Blazor project template](xref:blazor/project-structure) sets the default layout to the `MainLayout` component.
+Specify the default app layout in the `App` component's <xref:Microsoft.AspNetCore.Components.Routing.Router> component. The following example from an app based on a [Blazor project template](xref:blazor/project-structure) sets the default layout to the `MainLayout` component.
 
 `App.razor`:
 
@@ -222,9 +224,9 @@ When routable components are integrated into a Razor Pages app, the app's shared
 
 * <xref:mvc/views/layout>
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 Some app elements, such as menus, copyright messages, and company logos, are usually part of app's overall presentation. Placing a copy of the markup for these elements into all of the components of an app isn't efficient. Every time that one of these elements is updated, every component that uses the element must be updated. This approach is costly to maintain and can lead to inconsistent content if an update is missed. *Layouts* solve these problems.
 
@@ -256,7 +258,7 @@ In an app created from a [Blazor project template](xref:blazor/project-structure
 
 [Blazor's CSS isolation feature](xref:blazor/components/css-isolation) applies isolated CSS styles to the `MainLayout` component. By convention, the styles are provided by the accompanying stylesheet of the same name, `Shared/MainLayout.razor.css`. The ASP.NET Core framework implementation of the stylesheet is available for inspection in the [ASP.NET Core reference source (dotnet/aspnetcore GitHub repository)](https://github.com/dotnet/aspnetcore/blob/main/src/ProjectTemplates/Web.ProjectTemplates/content/ComponentsWebAssembly-CSharp/Client/Shared/MainLayout.razor.css).
 
-[!INCLUDE[](~/blazor/includes/aspnetcore-repo-ref-source-links.md)]
+[!INCLUDE[](~/includes/aspnetcore-repo-ref-source-links.md)]
 
 ## Apply a layout
 
@@ -332,7 +334,7 @@ Specifying a layout in `_Imports.razor` overrides a layout specified as the rout
 
 ### Apply a default layout to an app
 
-Specify the default app layout in the in the `App` component's <xref:Microsoft.AspNetCore.Components.Routing.Router> component. The following example from an app based on a [Blazor project template](xref:blazor/project-structure) sets the default layout to the `MainLayout` component.
+Specify the default app layout in the `App` component's <xref:Microsoft.AspNetCore.Components.Routing.Router> component. The following example from an app based on a [Blazor project template](xref:blazor/project-structure) sets the default layout to the `MainLayout` component.
 
 `App.razor`:
 
@@ -439,9 +441,9 @@ When routable components are integrated into a Razor Pages app, the app's shared
 
 * <xref:mvc/views/layout>
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 Some app elements, such as menus, copyright messages, and company logos, are usually part of app's overall presentation. Placing a copy of the markup for these elements into all of the components of an app isn't efficient. Every time that one of these elements is updated, every component that uses the element must be updated. This approach is costly to maintain and can lead to inconsistent content if an update is missed. *Layouts* solve these problems.
 
@@ -544,7 +546,7 @@ The [`@layout`](xref:mvc/views/razor#layout) Razor directive only applies a layo
 
 ### Apply a default layout to an app
 
-Specify the default app layout in the in the `App` component's <xref:Microsoft.AspNetCore.Components.Routing.Router> component. The following example from an app based on a [Blazor project template](xref:blazor/project-structure) sets the default layout to the `MainLayout` component.
+Specify the default app layout in the `App` component's <xref:Microsoft.AspNetCore.Components.Routing.Router> component. The following example from an app based on a [Blazor project template](xref:blazor/project-structure) sets the default layout to the `MainLayout` component.
 
 `App.razor`:
 
@@ -647,4 +649,4 @@ When routable components are integrated into a Razor Pages app, the app's shared
 
 * <xref:mvc/views/layout>
 
-::: moniker-end
+:::moniker-end

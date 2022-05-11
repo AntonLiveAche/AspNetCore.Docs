@@ -5,7 +5,7 @@ description: Learn how to make scalable, high-performance gRPC apps with client-
 monikerRange: '>= aspnetcore-3.0'
 ms.author: jamesnk
 ms.date: 08/07/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR, "service config"]
+no-loc: [".NET MAUI", "Mac Catalyst", "Blazor Hybrid", Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR, "service config"]
 uid: grpc/loadbalancing
 ---
 # gRPC client-side load balancing
@@ -17,15 +17,7 @@ Client-side load balancing is a feature that allows gRPC clients to distribute l
 Client-side load balancing requires:
 
 * .NET 5 or later.
-* [Grpc.Net.Client](https://www.nuget.org/packages/Grpc.Net.Client) version 2.39.0-pre1 or later.
-
-> [!IMPORTANT]
-> This feature is in preview. Integration with other gRPC features is not complete and testing is required.
-> 
-> Client-side load balancing is currently:
-> 
-> * Only available in pre-release versions of `Grpc.Net.Client` on NuGet.org.
-> * Not supported when used with [gRPC client factory](xref:grpc/clientfactory).
+* [`Grpc.Net.Client`](https://www.nuget.org/packages/Grpc.Net.Client) version 2.44.0 or later.
 
 ## Configure gRPC client-side load balancing
 
@@ -34,7 +26,7 @@ Client-side load balancing is configured when a channel is created. The two comp
 * The resolver, which resolves the addresses for the channel. Resolvers support getting addresses from an external source. This is also known as service discovery.
 * The load balancer, which creates connections and picks the address that a gRPC call will use.
 
-Built-in implementations of resolvers and load balancers are included in [Grpc.Net.Client](https://www.nuget.org/packages/Grpc.Net.Client). Load balancing can also be extended by [writing custom resolvers and load balancers](#write-custom-resolvers-and-load-balancers).
+Built-in implementations of resolvers and load balancers are included in [`Grpc.Net.Client`](https://www.nuget.org/packages/Grpc.Net.Client). Load balancing can also be extended by [writing custom resolvers and load balancers](#write-custom-resolvers-and-load-balancers).
 
 Addresses, connections and other load balancing state is stored in a `GrpcChannel` instance. A channel must be reused when making gRPC calls for load balancing to work correctly.
 
@@ -49,7 +41,7 @@ The resolver is configured using the address a channel is created with. The [URI
 
 A channel doesn't directly call a URI that matches a resolver. Instead, a matching resolver is created and used to resolve the addresses.
 
-For example, using `GrpcChannel.ForAddress("dns:///my-example-host", new GrpcChannelOptions { ChannelCredentials = ChannelCredentials.Insecure })`:
+For example, using `GrpcChannel.ForAddress("dns:///my-example-host", new GrpcChannelOptions { Credentials = ChannelCredentials.Insecure })`:
 
 * The `dns` scheme maps to `DnsResolverFactory`. A new instance of a DNS resolver is created for the channel.
 * The resolver makes a DNS query for `my-example-host` and gets two results: `localhost:80` and `localhost:81`.
@@ -62,7 +54,7 @@ The `DnsResolverFactory` creates a resolver designed to get addresses from an ex
 ```csharp
 var channel = GrpcChannel.ForAddress(
     "dns:///my-example-host",
-    new GrpcChannelOptions { ChannelCredentials = ChannelCredentials.Insecure });
+    new GrpcChannelOptions { Credentials = ChannelCredentials.Insecure });
 var client = new Greet.GreeterClient(channel);
 
 var response = await client.SayHelloAsync(new HelloRequest { Name = "world" });
@@ -77,7 +69,20 @@ The preceding code:
   * Pick first load balancer attempts to connect to one of the resolved addresses.
   * The call is sent to the first address the channel successfully connects to.
 
-Performance is important when load balancing. The latency of resolving addresses is eliminated from gRPC calls by caching the addresses. A resolver will be invoked when making the first gRPC call, and subsequent calls use the cache. Addresses are automatically refreshed if a connection is interrupted. Refreshing is important in scenarios where addresses change at runtime. For example, in Kubernetes a [restarted pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/) triggers the DNS resolver to refresh and get the pod's new address.
+##### DNS address caching
+
+Performance is important when load balancing. The latency of resolving addresses is eliminated from gRPC calls by caching the addresses. A resolver will be invoked when making the first gRPC call, and subsequent calls use the cache.
+
+Addresses are automatically refreshed if a connection is interrupted. Refreshing is important in scenarios where addresses change at runtime. For example, in Kubernetes a [restarted pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/) triggers the DNS resolver to refresh and get the pod's new address.
+
+By default, a DNS resolver is refreshed if a connection is interrupted. The DNS resolver can also optionally refresh itself on a periodic interval. This can be useful for quickly detecting new pod instances. 
+
+```csharp
+services.AddSingleton<ResolverFactory>(
+    sp => new DnsResolverFactory(refreshInterval: TimeSpan.FromSeconds(30)));
+```
+
+The preceding code creates a `DnsResolverFactory` with a refresh interval and registers it with dependency injection. For more information on using a custom-configured resolver, see [Configure custom resolvers and load balancers](#configure-custom-resolvers-and-load-balancers).
 
 #### StaticResolverFactory
 
@@ -89,8 +94,8 @@ A static resolver is provided by `StaticResolverFactory`. This resolver:
 ```csharp
 var factory = new StaticResolverFactory(addr => new[]
 {
-    new DnsEndPoint("localhost", 80),
-    new DnsEndPoint("localhost", 81)
+    new BalancerAddress("localhost", 80),
+    new BalancerAddress("localhost", 81)
 });
 
 var services = new ServiceCollection();
@@ -100,7 +105,7 @@ var channel = GrpcChannel.ForAddress(
     "static:///my-example-host",
     new GrpcChannelOptions
     {
-        ChannelCredentials = ChannelCredentials.Insecure,
+        Credentials = ChannelCredentials.Insecure,
         ServiceProvider = services.BuildServiceProvider()
     });
 var client = new Greet.GreeterClient(channel);
@@ -136,7 +141,7 @@ var channel = GrpcChannel.ForAddress(
     "dns:///my-example-host",
     new GrpcChannelOptions
     {
-        ChannelCredentials = ChannelCredentials.Insecure,
+        Credentials = ChannelCredentials.Insecure,
         ServiceConfig = new ServiceConfig { LoadBalancingConfigs = { new RoundRobinConfig() } }
     });
 var client = new Greet.GreeterClient(channel);
@@ -154,7 +159,7 @@ The preceding code:
 
 ## Configure channel credentials
 
-A channel must know whether gRPC calls are sent using [transport security](xref:grpc/security#transport-security). `http` and `https` are no longer part of the address, the scheme now specifies a resolver, so `ChannelCredentials` must be configured on channel options when using load balancing.
+A channel must know whether gRPC calls are sent using [transport security](xref:grpc/security#transport-security). `http` and `https` are no longer part of the address, the scheme now specifies a resolver, so `Credentials` must be configured on channel options when using load balancing.
 
 * `ChannelCredentials.SecureSsl` - gRPC calls are secured with [Transport Layer Security (TLS)](https://tools.ietf.org/html/rfc5246). Equivalent to an `https` address.
 * `ChannelCredentials.Insecure` - gRPC calls don't use transport security. Equivalent to an `http` address.
@@ -162,7 +167,7 @@ A channel must know whether gRPC calls are sent using [transport security](xref:
 ```csharp
 var channel = GrpcChannel.ForAddress(
     "dns:///my-example-host",
-    new GrpcChannelOptions { ChannelCredentials = ChannelCredentials.Insecure });
+    new GrpcChannelOptions { Credentials = ChannelCredentials.Insecure });
 var client = new Greet.GreeterClient(channel);
 
 var response = await client.SayHelloAsync(new HelloRequest { Name = "world" });
@@ -187,30 +192,27 @@ A resolver:
 * Can optionally provide a service configuration.
 
 ```csharp
-public class FileResolver : Resolver
+public class FileResolver : PollingResolver
 {
     private readonly Uri _address;
-    private Action<ResolverResult> _listener;
+    private readonly int _port;
 
-    public ExampleResolver(Uri address)
+    public ExampleResolver(Uri address, int defaultPort, ILoggerFactory loggerFactory)
+        : base(loggerFactory)
     {
         _address = address;
+        _port = defaultPort;
     }
 
-    public override async Task RefreshAsync(CancellationToken cancellationToken)
+    public override async Task ResolveAsync(CancellationToken cancellationToken)
     {
         // Load JSON from a file on disk and deserialize into endpoints.
         var jsonString = await File.ReadAllTextAsync(_address.LocalPath);
         var results = JsonSerializer.Deserialize<string[]>(jsonString);
-        var addresses = results.Select(r => new DnsEndPoint(r, 80));
+        var addresses = results.Select(r => new BalancerAddress(r, _port)).ToArray();
 
         // Pass the results back to the channel.
-        _listener(ResolverResult.ForResult(addresses, serviceConfig: null));
-    }
-
-    public override void Start(Action<ResolverResult> listener)
-    {
-        _listener = listener;
+        Listener(ResolverResult.ForResult(addresses));
     }
 }
 
@@ -221,7 +223,7 @@ public class FileResolverFactory : ResolverFactory
 
     public override Resolver Create(ResolverOptions options)
     {
-        return new FileResolver(options.Address);
+        return new FileResolver(options.Address, options.DefaultPort, options.LoggerFactory);
     }
 }
 ```
@@ -229,7 +231,8 @@ public class FileResolverFactory : ResolverFactory
 In the preceding code:
 
 * `FileResolverFactory` implements `ResolverFactory`. It maps to the `file` scheme and creates `FileResolver` instances.
-* `FileResolver` implements `Resolver`. In `RefreshAsync`:
+* `FileResolver` implements `PollingResolver`. `PollingResolver` is an abstract base type that makes it easy to implement a resolver with asynchronous logic by overriding `ResolveAsync`.
+* In `ResolveAsync`:
   * The file URI is converted to a local path. For example, `file:///c:/addresses.json` becomes `c:\addresses.json`.
   * JSON is loaded from disk and converted into a collection of addresses.
   * Listener is called with results to let the channel know that addresses are available.
@@ -267,7 +270,7 @@ public class RandomBalancer : SubchannelsLoadBalancer
 
         public RandomPicker(List<Subchannel> subchannels)
         {
-            _subchannels = readySubchannels;
+            _subchannels = subchannels;
         }
 
         public override PickResult Pick(PickContext context)
@@ -313,7 +316,7 @@ var channel = GrpcChannel.ForAddress(
     "file:///c:/data/addresses.json",
     new GrpcChannelOptions
     {
-        ChannelCredentials = ChannelCredentials.Insecure,
+        Credentials = ChannelCredentials.Insecure,
         ServiceConfig = new ServiceConfig { LoadBalancingConfigs = { new LoadBalancingConfig("random") } },
         ServiceProvider = services.BuildServiceProvider()
     });

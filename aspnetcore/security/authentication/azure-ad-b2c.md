@@ -5,7 +5,7 @@ description: Discover how to set up Azure Active Directory B2C authentication wi
 ms.author: casoper
 ms.custom: "devx-track-csharp, mvc"
 ms.date: 07/22/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
+no-loc: [".NET MAUI", "Mac Catalyst", "Blazor Hybrid", Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: security/authentication/azure-ad-b2c
 ---
 # Cloud authentication with Azure Active Directory B2C in ASP.NET Core
@@ -53,7 +53,7 @@ In this tutorial, you'll learn how to configure an ASP.NET Core app for authenti
     - `Microsoft.Identity.Web` includes the basic set of dependencies for authenticating with the Microsoft Identity platform.
     - `Microsoft.Identity.Web.UI` includes UI functionality encapsulated in an area named `MicrosoftIdentity`.
 
-1. Add an `AzureB2C` object to *appsettings.json*.
+1. Add an `AzureB2C` object to `appsettings.json`.
 
     :::code language="json" source="azure-ad-b2c/sample/appsettings.json" highlight="2-8":::
 
@@ -72,7 +72,7 @@ In this tutorial, you'll learn how to configure an ASP.NET Core app for authenti
     - For **SignUpSignInPolicyId**, use the user flow policy defined in the Azure B2C tenant
     - Leave all other values as they are.
 	
-1. In *Views/Shared*, create a file named *_LoginPartial.cshtml*. Include the following code:
+1. In *Views/Shared*, create a file named `_LoginPartial.cshtml`. Include the following code:
 
     :::code language="razor" source="azure-ad-b2c/sample/Pages/Shared/_LoginPartial.cshtml":::    
 
@@ -82,13 +82,13 @@ In this tutorial, you'll learn how to configure an ASP.NET Core app for authenti
     - Renders a **Sign out** or **Sign in** link as appropriate.
         - The link points to an action method on the `Account` controller in the `MicrosoftIdentity` area.
 
-1. In *Views/Shared/_Layout.cshtml*, add the highlighted line within the `<header>` element:
+1. In `Views/Shared/_Layout.cshtml`, add the highlighted line within the `<header>` element:
 
     :::code language="razor" source="azure-ad-b2c/sample/Pages/Shared/_Layout.cshtml" range="11-32" highlight="10":::
  
-    Adding `<partial name="_LoginPartial" />` renders the *_LoginPartial.cshtml* partial view in every page request that uses this layout.
+    Adding `<partial name="_LoginPartial" />` renders the `_LoginPartial.cshtml` partial view in every page request that uses this layout.
 
-1. In *Startup.cs*, make the following changes:
+1. In `Startup.cs`, make the following changes:
 
     1. Add the following `using` directives:
     
@@ -139,6 +139,6 @@ Now that the ASP.NET Core app is configured to use Azure AD B2C for authenticati
 * [Configure password complexity requirements](/azure/active-directory-b2c/active-directory-b2c-reference-password-complexity).
 * [Enable multi-factor authentication](/azure/active-directory-b2c/active-directory-b2c-reference-mfa).
 * Configure additional identity providers, such as [Microsoft](/azure/active-directory-b2c/active-directory-b2c-setup-msa-app), [Facebook](/azure/active-directory-b2c/active-directory-b2c-setup-fb-app), [Google](/azure/active-directory-b2c/active-directory-b2c-setup-goog-app), [Amazon](/azure/active-directory-b2c/active-directory-b2c-setup-amzn-app), [Twitter](/azure/active-directory-b2c/active-directory-b2c-setup-twitter-app), and others.
-* [Use the Azure AD Graph API](/azure/active-directory-b2c/active-directory-b2c-devquickstarts-graph-dotnet) to retrieve additional user information, such as group membership, from the Azure AD B2C tenant.
+* [Use the Microsoft Graph API](/azure/active-directory-b2c/microsoft-graph-operations) to retrieve additional user information, such as group membership, from the Azure AD B2C tenant.
 * [How to secure a Web API built with ASP.NET Core using the Azure AD B2C](https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/tree/master/4-WebApp-your-API/4-2-B2C).
 * [Tutorial: Grant access to an ASP.NET web API using Azure Active Directory B2C](/azure/active-directory-b2c/tutorial-web-api-dotnet).
